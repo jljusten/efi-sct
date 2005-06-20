@@ -1,0 +1,60 @@
+/*++
+
+Copyright 2005, Intel Corporation
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the Eclipse Public License
+which accompanies this distribution.  The full text of the license may be found at
+http://www.opensource.org/licenses/eclipse-1.0.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE ECLIPSE PUBLIC LICENSE (EPL) ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+Module Name:
+
+  EfiLibPlat.c
+
+Abstract:
+
+  Math routines for compatibility with native EFI library routines.
+
+--*/
+
+#include "Efi.h"
+
+UINT64
+RShiftU64 (
+  IN UINT64   Operand,
+  IN UINTN    Count
+  )
+{
+  return Operand >> Count;
+}
+
+UINT64
+DivU64x32 (
+  IN UINT64   Dividend,
+  IN UINTN    Divisor,
+  OUT UINTN   *Remainder OPTIONAL
+  )
+{
+  ASSERT (Divisor != 0);
+
+  //
+  // Have to compute twice if remainder. No support for
+  // divide-with-remainder in VM.
+  //
+  if (Remainder != NULL) {
+    *Remainder = Dividend % Divisor;
+  }
+  return Dividend / Divisor;
+}
+
+VOID
+InitializeLibPlatform (
+    IN EFI_HANDLE           ImageHandle,
+    IN EFI_SYSTEM_TABLE     *SystemTable
+    )
+
+{
+  // No platform-specific initializations
+}

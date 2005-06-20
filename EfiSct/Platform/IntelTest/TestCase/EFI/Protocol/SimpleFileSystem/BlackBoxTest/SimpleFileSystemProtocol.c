@@ -1,0 +1,47 @@
+/*++
+
+Copyright 2005, Intel Corporation
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the Eclipse Public License
+which accompanies this distribution.  The full text of the license may be found at
+http://www.opensource.org/licenses/eclipse-1.0.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE ECLIPSE PUBLIC LICENSE (EPL) ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+Module Name:
+
+  SimpleFileSystemProtocol.c
+
+Abstract:
+
+  EFI Simple File System Protocol and EFI_FILE Protocol
+    (define according to the EFI Spec, version 1.10)
+
+--*/
+
+#include "Efi.h"
+
+#include "SimpleFileSystemProtocol.h"
+
+EFI_GUID gEfiSimpleFileSystemProtocolGuid = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
+
+EFI_GUID_STRING(&gEfiSimpleFileSystemProtocolGuid, "Filesystem Protocol", "EFI 1.0 Simple FileSystem Protocol");
+
+
+EFI_GUID gEfiFileInfoGuid = EFI_FILE_INFO_ID;
+
+EFI_GUID_STRING(&gEfiFileInfoGuid, "File System Info", "EFI File System Info GUID");
+
+
+EFI_GUID gEfiFileInfoIdGuid = EFI_FILE_SYSTEM_INFO_ID;
+
+EFI_GUID_STRING(&gEfiFileInfoIdGuid, "File System Info ID", "EFI File System Info ID GUID");
+
+
+EFI_GUID gEfiFileSystemVolumeLabelInfoIdGuid = EFI_FILE_SYSTEM_VOLUME_LABEL_INFO_ID;
+
+EFI_GUID_STRING(&gEfiFileSystemVolumeLabelInfoIdGuid, "File System Vol Label ID", "EFI File System Volume Label Info ID GUID");
+
+
+

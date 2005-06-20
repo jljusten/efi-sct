@@ -1,0 +1,60 @@
+#/*++
+#
+# Copyright 2005, Intel Corporation
+# All rights reserved. This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the Eclipse Public License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://www.opensource.org/licenses/eclipse-1.0.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE ECLIPSE PUBLIC LICENSE (EPL) ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+# Module Name:
+#
+#   ScsiPassThruBBTest.inf
+#
+# Abstract:
+#
+#   Dependency component for SCSI Pass Thru Protocol Black-Box Test.
+#
+#--*/
+
+[defines]
+BASE_NAME            = ScsiPassThruBBTest
+FILE_GUID            = 12548DBE-8F3C-450c-88F7-924130880DCF
+COMPONENT_TYPE       = BS_DRIVER
+
+[sources.common]
+  ScsiPassThruBBTestMain.c
+  ScsiPassThruBBTestMain.h
+  ScsiPassThruBBTestFunction.c
+  ScsiPassThruBBTestConformance.c
+  ScsiPassThruProtocol.c
+  Guid.c
+
+[includes.common]
+  .
+  $(EDK_SOURCE)\Foundation
+  $(EDK_SOURCE)\Foundation\Efi
+  $(EDK_SOURCE)\Foundation\Framework
+  $(EDK_SOURCE)\Foundation\Include
+  $(EDK_SOURCE)\Foundation\Efi\Include
+  $(EDK_SOURCE)\Foundation\Framework\Include
+  $(EDK_SOURCE)\Foundation\Include\IndustryStandard
+  $(EDK_SOURCE)\Foundation\Library\Dxe\Include
+  $(EFI_SOURCE)\
+  $(EFI_SOURCE)\Include
+  $(EFI_SOURCE)\platform\IntelTest\Include
+  $(EFI_SOURCE)\Platform\IntelTest\Library\EfiTestLib
+  $(EFI_SOURCE)\Platform\IntelTest\Library\EfiTestUtilityLib
+
+[libraries.common]
+  EfiGuidLib
+  EfiProtocolLib
+  TestProtocolLib
+  EfiCommonLib
+  EfiTestLib
+  EfiTestUtilityLib
+
+[nmake.common]
+  IMAGE_ENTRY_POINT = InitializeBBTestScsiPassThru

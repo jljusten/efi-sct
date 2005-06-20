@@ -1,0 +1,284 @@
+/*++
+
+Copyright 2005, Intel Corporation
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the Eclipse Public License
+which accompanies this distribution.  The full text of the license may be found at
+http://www.opensource.org/licenses/eclipse-1.0.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE ECLIPSE PUBLIC LICENSE (EPL) ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+Module Name:
+
+  TestDriver2.c
+
+Abstract:
+
+  for Protocol Handler Boot Services Black Box Test
+
+--*/
+
+#include "ProtocolDefinition.h"
+#include "..\inc\TestDriver.h"
+
+//
+// data definition here
+//
+#define TEST_DRIVER_2_PRIVATE_DATA_FROM_THIS(a) \
+ _CR(a, TEST_DRIVER_PRIVATE_DATA, ExProt1)
+
+TEST_DRIVER_PRIVATE_DATA  *mPrivateData;
+
+EFI_STATUS
+InitializeTestDriver2 (
+  IN EFI_HANDLE           ImageHandle,
+  IN EFI_SYSTEM_TABLE     *SystemTable
+  );
+
+VOID
+TestDriver2GetNextStatusReport (
+  IN EXTERNAL_DRIVER_PROTOCOL_1   *This,
+  IN EFI_STATUS                   *NextStatus
+  );
+
+EFI_STATUS
+TestDriver2Unload (
+  IN EFI_HANDLE       ImageHandle
+  );
+
+EFI_DRIVER_ENTRY_POINT(InitializeTestDriver2)
+
+EFI_STATUS
+InitializeTestDriver2 (
+  IN EFI_HANDLE           ImageHandle,
+  IN EFI_SYSTEM_TABLE     *SystemTable
+  )
+{
+  EFI_STATUS                            Status;
+  INTERFACE_FUNCTION_TEST_PROTOCOL_1    *IFTestProt1;
+  INTERFACE_FUNCTION_TEST_PROTOCOL_2    *IFTestProt2;
+  EFI_HANDLE                            *HandleBuffer;
+  UINTN                                 NoHandles;
+  EFI_LOADED_IMAGE_PROTOCOL             *LoadedImageInfoPtr;
+
+  HandleBuffer = NULL;
+
+  EfiInitializeTestLib (ImageHandle, SystemTable);
+
+  //
+  // allocate memory for PrivateData
+  //
+  Status = gtBS->AllocatePool (
+                        EfiBootServicesData,
+                        sizeof (TEST_DRIVER_PRIVATE_DATA),
+                        (VOID**)&mPrivateData
+                        );
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+  gtBS->SetMem (mPrivateData,sizeof (TEST_DRIVER_PRIVATE_DATA),0);
+
+  //
+  // UnLoad Function Handler
+  //
+  gtBS->HandleProtocol (
+        ImageHandle,
+        &gEfiLoadedImageProtocolGuid,
+        (VOID*)&LoadedImageInfoPtr
+        );
+
+  LoadedImageInfoPtr->Unload = TestDriver2Unload;
+
+  mPrivateData->ArrayCount = 2;
+  Status = gtBS->AllocatePool (
+                        EfiBootServicesData,
+                        mPrivateData->ArrayCount * sizeof (EFI_STATUS),
+                        (VOID**)&(mPrivateData->StatusArray)
+                        );
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+  //
+  // init StatusArray with invalid data
+  //
+  gtBS->SetMem (
+        mPrivateData->StatusArray,
+        mPrivateData->ArrayCount * sizeof (EFI_STATUS),
+        0xff
+        );
+
+  Status = gtBS->AllocatePool (
+                        EfiBootServicesData,
+                        mPrivateData->ArrayCount * sizeof (EFI_HANDLE),
+                        (VOID**)&(mPrivateData->HandleArray)
+                        );
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+  gtBS->SetMem (
+        mPrivateData->HandleArray,
+        mPrivateData->ArrayCount * sizeof (EFI_HANDLE),
+        0
+        );
+
+  Status = gtBS->AllocatePool (
+                        EfiBootServicesData,
+                        mPrivateData->ArrayCount * sizeof (EFI_GUID),
+                        (VOID**)&(mPrivateData->ProtGuidArray)
+                        );
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+  mPrivateData->ProtGuidArray[0] = mInterfaceFunctionTestProtocol1Guid;
+  mPrivateData->ProtGuidArray[1] = mInterfaceFunctionTestProtocol2Guid;
+
+  //
+  // locate handle which contains  INTERFACE_FUNCTION_TEST_PROTOCOL_1
+  //
+  Status = gtBS->LocateHandleBuffer (
+                  ByProtocol,
+                  &mInterfaceFunctionTestProtocol1Guid,
+                  NULL,
+                  &NoHandles,
+                  &HandleBuffer
+                  );
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+
+  mPrivateData->HandleArray[0] = HandleBuffer[0];
+  mPrivateData->StatusArray[0] = gtBS->OpenProtocol (
+                                  HandleBuffer[0],
+                                  &mInterfaceFunctionTestProtocol1Guid,
+                                  &IFTestProt1,
+                                  ImageHandle,
+                                  NULL,
+                                  EFI_OPEN_PROTOCOL_GET_PROTOCOL
+                                  );
+
+  if (HandleBuffer != NULL) {
+    gtBS->FreePool (HandleBuffer);
+    HandleBuffer = NULL;
+  }
+  Status = gtBS->LocateHandleBuffer (
+                  ByProtocol,
+                  &mInterfaceFunctionTestProtocol2Guid,
+                  NULL,
+                  &NoHandles,
+                  &HandleBuffer
+                  );
+  if (EFI_ERROR(Status)) {
+    goto Done;
+  }
+
+  mPrivateData->HandleArray[1] = HandleBuffer[0];
+  mPrivateData->StatusArray[1] = gtBS->OpenProtocol (
+                                  HandleBuffer[0],
+                                  &mInterfaceFunctionTestProtocol2Guid,
+                                  &IFTestProt2,
+                                  ImageHandle,
+                                  NULL,
+                                  EFI_OPEN_PROTOCOL_GET_PROTOCOL
+                                  );
+
+  mPrivateData->ExProt1.GetNextStatusReport = TestDriver2GetNextStatusReport;
+
+  Status = gtBS->InstallProtocolInterface (
+                  &mPrivateData->Handle,
+                  &mExternalDriverProtocol1Guid,
+                  EFI_NATIVE_INTERFACE,
+                  &mPrivateData->ExProt1
+                  );
+
+Done:
+
+  if (HandleBuffer != NULL) {
+    gtBS->FreePool (HandleBuffer);
+    HandleBuffer = NULL;
+  }
+
+  return EFI_SUCCESS;
+}
+
+VOID
+TestDriver2GetNextStatusReport (
+  IN EXTERNAL_DRIVER_PROTOCOL_1   *This,
+  IN EFI_STATUS                   *NextStatus
+  )
+{
+  TEST_DRIVER_PRIVATE_DATA            *PrivateData;
+
+  PrivateData = TEST_DRIVER_2_PRIVATE_DATA_FROM_THIS (This);
+
+  if (*NextStatus == 0xffffffff) {
+    PrivateData->Count = 0;
+  } else {
+    PrivateData->Count ++;
+  }
+
+  if (PrivateData->Count >= PrivateData->ArrayCount) {
+    *NextStatus = 0xffffffff;
+  } else {
+    *NextStatus = PrivateData->StatusArray[PrivateData->Count];
+  }
+
+  return;
+}
+
+
+/**
+ *  The driver's Unload function
+ *  @param  ImageHandle The test driver image handle
+ *  @return EFI_SUCCESS Indicates the interface was Uninstalled
+*/
+EFI_STATUS
+TestDriver2Unload (
+  IN EFI_HANDLE       ImageHandle
+  )
+{
+  UINTN                               Index;
+
+  //
+  // close protocols
+  //
+  if (mPrivateData->HandleArray != NULL && mPrivateData->ProtGuidArray != NULL) {
+    for (Index = 0; Index < mPrivateData->ArrayCount; Index ++) {
+      if (mPrivateData->HandleArray[Index] != NULL) {
+        gtBS->CloseProtocol (
+              mPrivateData->HandleArray[Index],
+              &mPrivateData->ProtGuidArray[Index],
+              ImageHandle,
+              NULL
+              );
+      }
+    }
+  }
+
+  //
+  // free resources
+  //
+  if (mPrivateData->Handle != NULL) {
+    gtBS->UninstallProtocolInterface (
+                    mPrivateData->Handle,
+                    &mExternalDriverProtocol1Guid,
+                    &mPrivateData->ExProt1
+                    );
+  }
+
+  if (mPrivateData->HandleArray != NULL) {
+    gtBS->FreePool (mPrivateData->HandleArray);
+  }
+
+  if (mPrivateData->ProtGuidArray != NULL) {
+    gtBS->FreePool (mPrivateData->ProtGuidArray);
+  }
+
+  if (mPrivateData->StatusArray != NULL) {
+    gtBS->FreePool (mPrivateData->StatusArray);
+  }
+
+  gtBS->FreePool (mPrivateData);
+
+  return EFI_SUCCESS;
+}
