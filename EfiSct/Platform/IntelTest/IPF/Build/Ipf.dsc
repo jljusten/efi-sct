@@ -1170,7 +1170,7 @@ Platform\IntelTest\TestCase\EFI\Protocol\UsbIo\BlackBoxTest\UsbIoTest.inf
 # Dependency files for EFI Compliant Test
 #
 
-Platform\IntelTest\TestCase\Efi\BootServices\ImageServices\BlackBoxTest\Dependency\Config\Config.inf
+Platform\IntelTest\TestCase\Efi\Generic\EfiCompliant\BlackBoxTest\Dependency\Config\Config.inf
 
 #
 # Dependency files for Image Services Test
