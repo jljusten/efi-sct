@@ -24,6 +24,8 @@
 # file system name in the script.
 #
 
+echo -off
+
 for %i in 0 1 2 3 4 5 6 7 8 9 A B C D E F
   if exist FS%i:\Sct then
     #
@@ -32,24 +34,19 @@ for %i in 0 1 2 3 4 5 6 7 8 9 A B C D E F
     FS%i:
     cd Sct
 
-    echo Press any key to stop the EFI SCT automatic running
+    if %efishellmode%. == . then
+      echo The EFI SCT cannot run in the old shell environment.
+      goto Done
+    endif
+
+    echo Press any key to stop the EFI SCT running
 
     stallforkey.efi 10
     if %lasterror% == 0 then
       goto Done
     endif
 
-    if %efishellmode%. == . then
-      #
-      # It is an old shell
-      #
-      NewShell.efi
-    else
-      #
-      # It is a new shell
-      #
-      Sct -c
-    endif
+    Sct -c
 
     goto Done
   endif
