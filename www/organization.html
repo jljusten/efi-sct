@@ -1,0 +1,93 @@
+
+
+<h3>The EFI-SCT Development Process</h3>
+<h4>Introduction</h4>
+<p>Changing platform-level code is a risky venture; a defect at this level could potentially fry a piece of hardware. As such, as far as open source projects go, this one could be construed as fairly tightly controlled. The underlying software development environment, based on the CollabNet Enterprise Edition development platform, is both flexible and secure, which allows us to build a process that allows for participation by various individuals from around the world, while also allowing us to ensure quality of the code.</p>
+<h4>Process Overview</h4>
+<p>The EFI-SCT codebase is an application that is built as part of the EDK project. At present there is no formalized team structure supporting each component or application of the EFI SCT, but as the membership increases project members will be naturally be attached to certain applications, performing roles such as defect screeners, fixers, code inspectors and QA analysts. We also envision new members bringing enhancements to the EFI SCT and perhaps creating new tests and applications. The fundamental role of project members will be of course to submit defects and enhancements. Guidance for how to submit issues can be found in the "How do I?" list on the EFI-SCT project homepage. Eventually new project members will contribute code changes. At a high level, the process for making changes to the code is to (a) download the tip of the sourcecode repository, (b) make your changes, then (c) submit your updates as a "diff" file to the module maintainer. The module maintainer will then review your submission for code quality and fix validation, then commit it into the repository. In this model, the only people with commit access are the module maintainers (and the project owner of course). This allows us to make sure that the codebase remains solid. Here's a high-level diagram of the life of an issue.</p>
+<table>
+  <tr>
+    <td><p align="left"><strong>EDK ISSUE LIFECYCLE </strong></td>
+    <td width="20">&nbsp;</td>
+    <td><p><img src="http://www.tianocore.org/images/HiLevelDefectProcess.gif" align="middle" > </p>
+        <p></p>
+        <p>&nbsp; </p></td>
+  </tr>
+</table>
+
+<p>For a detailed view of the issue resolution process click <a href="http://edk.tianocore.org/issuetrackerdiagram.html">here</a>).</p>
+<p>The mechanism for tracking bugs and getting code submissions moved through the process is the CollabNet Project Tracker (PT) application. PT is a robust, highly-configurable artifact tracking application that we have tailored to suit our needs. PT is integrated with the code respository (which is CVS), and so any commits or adds to the codebase must reference a defect or enhancement. In addition, the project has several mailing lists that capture updates to issues, commits to the CVS repository and general development discussions. Finally the project has a document repository where we keep documents that don't require versioning (this is where we keep the &quot;tip&quot; files that you'd be using to develop from). </p>
+<p>The EFI-SCT project currently has two owners, <A 
+href="mailto:laurie.fleisher@intel.com">Laurie Fleisher</A> and <A 
+href="mailto:%20Carl.shi@intel.com">Carl Shi</A>, both of Intel. The project owners have at their disposal the ability to post a message to the group, add/change/delete roles and permissions, and to do project-level configuring of the Project Tracker application. The TianoCore community manager <A 
+href="mailto:%20akelly@collab.net">Andew Kelly</A> (who is employed by CollabNet and the site's expert on the underlying tool) is heavily involved in helping the EFI-SCT project owners with leveraging the CollabNet tool to the maximum extent possible. </p>
+<p>The following sections explain in more detail the various features of the development environment and the roles that the EFI-SCT project supports. </p>
+<h4>Components of the Process</h4>
+<h5>Issue Tracking</h5>
+<p>Issue tracking is accomplished through the use of the Project Tracker application. For a graphical depiction of the issue resolution process click <A 
+href="http://edk.tianocore.org/issuetrackerdiagram.html">here</A>. On the left side of the EFI-SCT homepage you can find several "How do I?" links that spell out how to do various things like submit an issue, update an issue, etc. In addition, the system <A 
+href="http://efi-sct.tianocore.org/nonav/servlets/HelpTOC">Help</A> has good information on how to use the Project Tracker application. As we mentioned above, this project has a fairly tight change management process, which is not to say its confusing, its just tight. Even so, its going to take some time to get up to speed on it, and we're here to assist. Eventually this community will support itself in guiding new members through the process, but until we get there, the EFI-SCT project owners, module maintainers and TianoCore Community Manager are committed to helping new members become comfortable with the process. Drop any one of these folks a line or just drop your question onto the "dev" mailing list for a wider distribution. </p>
+<h5>Code Versioning </h5>
+The EFI-SCT repository uses the Concurrent Versioning System (CVS). CVS is an open-source, time tested and intuitive system of controlling changes to the codebase. To use CVS you'll need a client, and instructions for getting connected to CVS are located on the <A 
+href="http://efi-sct.tianocore.org/source/browse/efi-sct/">version control page</A>. As mentioned above, the only folks that have the ability to commit files to the CVS repository are the module maintainers and project owners.
+<h5>Project Communication </h5>
+<p>Each project on TianoCore has its own set of mailing lists. Some of these lists are system lists, designed to capture archive data, while others are true mailing lists for users to join. Each project manager has the ability to create as many mailing lists as they need, and to control the manner in which members post (moderated or unmoderated). To join a list simply go to the mailing list page (located <A 
+href="http://efi-sct.tianocore.org/servlets/ProjectMailingListList">here</A>), find the list you want to join and click on "subscribe". You will soon receive an email verifying your request, which you would reply to, then you're on. The following is a brief description of the EFI-SCT mailing lists. </p>
+<P>(Note: registered users have access to more lists than the general public, so this link will show different lists based on whether or not you are logged in.) </P>
+<UL>
+  <LI><STRONG>Dev</STRONG>: this list is designed for general collaboration amongst the entire EDK development team. Members of the project can join it, while the general public can view the archives. <A 
+href="http://efi-sct.tianocore.org/servlets/SummarizeList?listName=dev">See Archives</A>. 
+  <LI><STRONG>Issues</STRONG>: this list is a system list, designed to archive changes to Project Tracker artifacts (defects and enhancements). If you join this list you will receive an email each time anybody updates an issue, so people typically do not join this list, its used primary for research and audit purposes. <A 
+href="http://efi-sct.tianocore.org/servlets/SummarizeList?listName=issues">See Archives</A>. 
+  <LI><STRONG>CVS</STRONG>: Similar to Issues, this list is a simple archive of commits to the CVS repository, and is used primarily for research and audit purposes. <A 
+href="http://efi-sct.tianocore.org/servlets/SummarizeList?listName=cvs">See Archives</A>. 
+  <LI><STRONG>Announce</STRONG>: This is a list that captures announcements that the project manager sends out to the group. Not one that you would join, since announcements show up on your "my pages" tab, but one that you might peruse. <A 
+href="http://efi-sct.tianocore.org/servlets/SummarizeList?listName=announce">See Archives</A>. </LI>
+</UL>
+<h5>Document Storage </h5>
+<p>Each project has its own place to store non-versioned documents and files. The EFI-SCT section can be found <A 
+href="http://efi-sct.tianocore.org/servlets/ProjectDocumentList">here</A>. This area will undoubtedly expand and change, but here is what is available at present in the EFI-SCT document section: </p>
+<UL>
+  <LI><STRONG>Developer HowTo's </STRONG>: documents intended to help developers get connected. <A 
+href="http://efi-sct.tianocore.org/servlets/ProjectDocumentList?folderID=1&expandFolder=1&folderID=0">Go there now</A>. 
+  <LI><STRONG>Documents Under Review </STRONG>: self explanatory, and used in conjunction with the Dev mailing list to get documents finalized. <A 
+href="http://efi-sct.tianocore.org/servlets/ProjectDocumentList?folderID=38&expandFolder=38&folderID=39">Go there now</A>. 
+  <LI><STRONG>Member Documents</STRONG>: this directory is intended for use by any EFI-SCT project member to house documents of their own. The only stipulation is that the documents be of value to the project. Just contact the Project Owner if you want your own directory created. <A 
+href="http://efi-sct.tianocore.org/servlets/ProjectDocumentList?folderID=55&expandFolder=55&folderID=55">Go there now</A>. 
+  <LI><STRONG>Releases</STRONG>: this is where the "snapshots" of the EFI SCT code tip are located. There are two subdirectories: development and official. The EFI SCT Project Owner controls updates to this directory. <A 
+href="http://efi-sct.tianocore.org/servlets/ProjectDocumentList?folderID=4&expandFolder=4&folderID=36">Go there now</A>. </LI>
+</UL>
+<br>
+
+
+<h4>Project Roles</h4>
+<p>The EFI-SCT project is comprised of a blended team of engineers from various companies and organizations. The CollabNet platform allows us flexibility in defining the project roles and tailoring permissions for each role. We've configured this project with the following roles: </p>
+<p><strong>Project Owner</strong>: This role is given to those that control the project. The project owner's responsibilities are:
+</p>
+<ul><LI>Project Management: The Project Owners have responsibility for defining the project scope, schedule and resources. 
+  <LI>EFI-SCT Direction: The Project Owners work with the community to define the product roadmap for the EFI-SCT
+  <LI>Overall Code Quality: The Project Owners are ultimately responsible for ensuring that additions or changes to the EFI-SCT codebase are modular and efficient. 
+  <LI>Interface with TianoCore community: The Project Owners are the EFI-SCT project's primary interface with the greater TianoCore community. </LI>
+</ul>
+<p><strong>Module Maintainer </strong>: This role is given to project members who are responsible for committing code changes to the CVS repository. The responsibilities include: </p>
+<ul>
+  <li>Ensure defect fixes pass code inspection and also fix the defect.</li>
+  <li>Make every attempt to ensure that malicious code does not make its way into the EFI-SCT codebase.</li>
+</ul>
+<p><strong>Integrator</strong>: This role is given to individuals who are responsible for integrating code changes into the EFI-SCT codebase. These individuals have commit rights to the CVS repository. </p>
+<p><strong>Developer</strong>: This role is given to project members that are contributing fixes to bugs, or 
+enhancements to the EFI-SCT. Developers can submit and update issues, join 
+mailing lists (public and private), and access the CVS repository. </p>
+<p><strong>QA</strong>: This role is given to project members that are part of a virtual testing team, responsible for tasks such as screening bugs, verifying fixes and monitoring quality.</p>
+<p><strong>Participant</strong>: This is the normal role for people using the EFI-SCT and submitting defects. New 
+members will typically assume this role for a period of time until they become 
+known to the team and ready to take on more responsibility. Members with this 
+role are able to download the code, join mailing lists and view, submit and 
+update defects. The biggest difference between this role and the Developer role 
+is that Developers can be assigned defects to fix, while Participants cannot. </p>
+
+<h4>Steps to Participate </h4>
+<p>Individuals or companies as a whole can commit to involvement in EFI-SCT project. If you are an individual who would like to participate, you can simply click on the "Request Project Membership" link on the EFI-SCT project homepage and choose "Participant" as your requested role (its the only role available to request). A preferred method, however, is to email the project owner directly (owner contact information is located at the bottom of the EFI-SCT project homepage) and introduce yourself, so he's aware of your intent, capabilities, availability, etc. Using this method will get you incorporated into the team more effectively than simply electronically requesting membership. Again, your first activity will probably be to submit defects, and the project owner can assist you with making sure your submissions go smoothly. When you're ready to move to the next level, contact either your module maintainer or the project owner with your request to be "promoted". 
+<P>If your company would like to become involved in the development of the EFI-SCT you should contact the EFI-SCT project owner as well. Companies with several engineers targeted to work on the EFI-SCT project should work closely with the project owner to help get their developers integrated into the team. </P>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
