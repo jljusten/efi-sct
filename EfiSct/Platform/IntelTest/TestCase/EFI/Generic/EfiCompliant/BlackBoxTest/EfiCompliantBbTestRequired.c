@@ -154,20 +154,26 @@ CheckSystemTable (
   )
 {
   EFI_TEST_ASSERTION  AssertionType;
+  UINT32              CRC32;
 
   //
   // Check the EFI System Table
   //
-  if ((gtST->Hdr.Signature       == EFI_SYSTEM_TABLE_SIGNATURE  ) &&
-      (gtST->Hdr.Revision        >= 0x00010010                  ) &&
-      (gtST->Hdr.Reserved        == 0x00000000                  ) &&
-      (gtST->RuntimeServices     != NULL                        ) &&
-      (gtST->BootServices        != NULL                        ) &&
-      (CalculateCrc32 ((UINT8 *)gtST, gtST->Hdr.HeaderSize) == 0)) {
+  CRC32 = gtST->Hdr.CRC32;
+  gtST->Hdr.CRC32 = 0;
+
+  if ((gtST->Hdr.Signature       == EFI_SYSTEM_TABLE_SIGNATURE      ) &&
+      (gtST->Hdr.Revision        >= 0x0001000A                      ) &&
+      (gtST->Hdr.Reserved        == 0x00000000                      ) &&
+      (gtST->RuntimeServices     != NULL                            ) &&
+      (gtST->BootServices        != NULL                            ) &&
+      (CalculateCrc32 ((UINT8 *)gtST, gtST->Hdr.HeaderSize) == CRC32)) {
     AssertionType = EFI_TEST_ASSERTION_PASSED;
   } else {
     AssertionType = EFI_TEST_ASSERTION_FAILED;
   }
+
+  gtST->Hdr.CRC32 = CRC32;
 
   StandardLib->RecordAssertion (
                  StandardLib,
@@ -240,12 +246,16 @@ CheckBootServices (
   )
 {
   EFI_TEST_ASSERTION  AssertionType;
+  UINT32              CRC32;
 
   //
   // Check the EFI Boot Services Table
   //
+  CRC32 = gtBS->Hdr.CRC32;
+  gtBS->Hdr.CRC32 = 0;
+
   if ((gtBS->Hdr.Signature                       == EFI_BOOT_SERVICES_SIGNATURE) &&
-      (gtBS->Hdr.Revision                        >= 0x00010010                 ) &&
+      (gtBS->Hdr.Revision                        >= 0x0001000A                 ) &&
       (gtBS->Hdr.Reserved                        == 0x00000000                 ) &&
       (gtBS->RaiseTPL                            != NULL                       ) &&
       (gtBS->RestoreTPL                          != NULL                       ) &&
@@ -289,11 +299,13 @@ CheckBootServices (
       (gtBS->CalculateCrc32                      != NULL                       ) &&
       (gtBS->CopyMem                             != NULL                       ) &&
       (gtBS->SetMem                              != NULL                       ) &&
-      (CalculateCrc32 ((UINT8 *)gtBS, gtBS->Hdr.HeaderSize) == 0               )) {
+      (CalculateCrc32 ((UINT8 *)gtBS, gtBS->Hdr.HeaderSize) == CRC32           )) {
     AssertionType = EFI_TEST_ASSERTION_PASSED;
   } else {
     AssertionType = EFI_TEST_ASSERTION_FAILED;
   }
+
+  gtBS->Hdr.CRC32 = CRC32;
 
   StandardLib->RecordAssertion (
                  StandardLib,
@@ -371,8 +383,7 @@ CheckBootServices (
                  L"  Reserved                            : %X\n"
                  L"  RegisterProtocolNotify              : %X\n"
                  L"  LocateHandle                        : %X\n"
-                 L"  LocateDevicePath                    : %X\n"
-                 L"  InstallConfigurationTable           : %X\n",
+                 L"  LocateDevicePath                    : %X\n",
                  gtBS->InstallProtocolInterface,
                  gtBS->ReinstallProtocolInterface,
                  gtBS->UninstallProtocolInterface,
@@ -380,7 +391,13 @@ CheckBootServices (
                  gtBS->Reserved,
                  gtBS->RegisterProtocolNotify,
                  gtBS->LocateHandle,
-                 gtBS->LocateDevicePath,
+                 gtBS->LocateDevicePath
+                 );
+
+  StandardLib->RecordMessage (
+                 StandardLib,
+                 EFI_VERBOSE_LEVEL_DEFAULT,
+                 L"  InstallConfigurationTable           : %X\n",
                  gtBS->InstallConfigurationTable
                  );
 
@@ -415,9 +432,7 @@ CheckBootServices (
                  L"  OpenProtocolInformation             : %X\n"
                  L"  ProtocolsPerHandle                  : %X\n"
                  L"  LocateHandleBuffer                  : %X\n"
-                 L"  LocateProtocol                      : %X\n"
-                 L"  InstallMultipleProtocolInterfaces   : %X\n"
-                 L"  UninstallMultipleProtocolInterfaces : %X\n",
+                 L"  LocateProtocol                      : %X\n",
                  gtBS->ConnectController,
                  gtBS->DisconnectController,
                  gtBS->OpenProtocol,
@@ -425,7 +440,14 @@ CheckBootServices (
                  gtBS->OpenProtocolInformation,
                  gtBS->ProtocolsPerHandle,
                  gtBS->LocateHandleBuffer,
-                 gtBS->LocateProtocol,
+                 gtBS->LocateProtocol
+                 );
+
+  StandardLib->RecordMessage (
+                 StandardLib,
+                 EFI_VERBOSE_LEVEL_DEFAULT,
+                 L"  InstallMultipleProtocolInterfaces   : %X\n"
+                 L"  UninstallMultipleProtocolInterfaces : %X\n",
                  gtBS->InstallMultipleProtocolInterfaces,
                  gtBS->UninstallMultipleProtocolInterfaces
                  );
@@ -453,12 +475,16 @@ CheckRuntimeServices (
   )
 {
   EFI_TEST_ASSERTION  AssertionType;
+  UINT32              CRC32;
 
   //
   // Check the EFI Runtime Services Table
   //
+  CRC32 = gtRT->Hdr.CRC32;
+  gtRT->Hdr.CRC32 = 0;
+
   if ((gtRT->Hdr.Signature             == EFI_RUNTIME_SERVICES_SIGNATURE) &&
-      (gtRT->Hdr.Revision              >= 0x00010010                    ) &&
+      (gtRT->Hdr.Revision              >= 0x0001000A                    ) &&
       (gtRT->Hdr.Reserved              == 0x00000000                    ) &&
       (gtRT->GetTime                   != NULL                          ) &&
       (gtRT->SetTime                   != NULL                          ) &&
@@ -471,11 +497,13 @@ CheckRuntimeServices (
       (gtRT->SetVariable               != NULL                          ) &&
       (gtRT->GetNextHighMonotonicCount != NULL                          ) &&
       (gtRT->ResetSystem               != NULL                          ) &&
-      (CalculateCrc32 ((UINT8 *)gtRT, gtRT->Hdr.HeaderSize) == 0        )) {
+      (CalculateCrc32 ((UINT8 *)gtRT, gtRT->Hdr.HeaderSize) == CRC32    )) {
     AssertionType = EFI_TEST_ASSERTION_PASSED;
   } else {
     AssertionType = EFI_TEST_ASSERTION_FAILED;
   }
+
+  gtRT->Hdr.CRC32 = CRC32;
 
   StandardLib->RecordAssertion (
                  StandardLib,
@@ -518,9 +546,7 @@ CheckRuntimeServices (
                  L"  ConvertPointer            : %X\n"
                  L"  GetVariable               : %X\n"
                  L"  GetNextVariableName       : %X\n"
-                 L"  SetVariable               : %X\n"
-                 L"  GetNextHighMonotonicCount : %X\n"
-                 L"  ResetSystem               : %X\n",
+                 L"  SetVariable               : %X\n",
                  gtRT->GetTime,
                  gtRT->SetTime,
                  gtRT->GetWakeupTime,
@@ -529,7 +555,14 @@ CheckRuntimeServices (
                  gtRT->ConvertPointer,
                  gtRT->GetVariable,
                  gtRT->GetNextVariableName,
-                 gtRT->SetVariable,
+                 gtRT->SetVariable
+                 );
+
+  StandardLib->RecordMessage (
+                 StandardLib,
+                 EFI_VERBOSE_LEVEL_DEFAULT,
+                 L"  GetNextHighMonotonicCount : %X\n"
+                 L"  ResetSystem               : %X\n",
                  gtRT->GetNextHighMonotonicCount,
                  gtRT->ResetSystem
                  );
