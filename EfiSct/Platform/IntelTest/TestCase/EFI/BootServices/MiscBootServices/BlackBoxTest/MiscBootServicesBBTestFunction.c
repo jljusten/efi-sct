@@ -1953,7 +1953,7 @@ BBTestInstallConfigurationTableInterfaceTest (
                    );
 
     Status = CheckMemoryType (
-               (EFI_PHYSICAL_ADDRESS)(gtST->ConfigurationTable),
+               (EFI_PHYSICAL_ADDRESS)(UINTN)(gtST->ConfigurationTable),
                gtST->NumberOfTableEntries * sizeof(EFI_CONFIGURATION_TABLE),
                EfiRuntimeServicesData
                );
@@ -2059,7 +2059,7 @@ BBTestInstallConfigurationTableInterfaceTest (
                    );
 
     Status = CheckMemoryType (
-               (EFI_PHYSICAL_ADDRESS)(gtST->ConfigurationTable),
+               (EFI_PHYSICAL_ADDRESS)(UINTN)(gtST->ConfigurationTable),
                gtST->NumberOfTableEntries * sizeof(EFI_CONFIGURATION_TABLE),
                EfiRuntimeServicesData
                );
