@@ -2,7 +2,7 @@
 
 rem /*++
 rem
-rem Copyright 2005, Intel Corporation
+rem Copyright (c) 2005, Intel Corporation
 rem All rights reserved. This program and the accompanying materials
 rem are licensed and made available under the terms and conditions of the Eclipse Public License
 rem which accompanies this distribution.  The full text of the license may be found at
