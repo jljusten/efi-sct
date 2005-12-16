@@ -581,6 +581,48 @@ Routine Description:
 
 
 EFI_STATUS
+SctChangeDirectory (
+  IN EFI_HANDLE                   ImageHandle,
+  IN CHAR16                       *DirName
+  )
+/*++
+
+Routine Description:
+
+  Change the current working directory.
+
+  Don't know what the best way is. Here the shell command "CD" is used directly.
+
+--*/
+{
+  EFI_STATUS    Status;
+  CHAR16        *CmdLine;
+
+  CmdLine = PoolPrint (L"CD %s", DirName);
+  if (CmdLine == NULL) {
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  Status = ShellExecute (
+             ImageHandle,
+             CmdLine,
+             FALSE
+             );
+  if (EFI_ERROR (Status)) {
+    BS->FreePool (CmdLine);
+    return Status;
+  }
+
+  BS->FreePool (CmdLine);
+
+  //
+  // Done
+  //
+  return EFI_SUCCESS;
+}
+
+
+EFI_STATUS
 SctCreateDirectory (
   IN EFI_FILE_HANDLE              RootDir,
   IN CHAR16                       *FileName

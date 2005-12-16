@@ -25,7 +25,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   SIMPLE_NETWORK_TEST_REVISION,
   EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
   L"Simple Network Protocol Test",
-  L"EFI2.0 Simple Network Protocol Test"
+  L"EFI1.10 Simple Network Protocol Test"
 };
 
 EFI_GUID gSupportProtocolGuid1[2] = {

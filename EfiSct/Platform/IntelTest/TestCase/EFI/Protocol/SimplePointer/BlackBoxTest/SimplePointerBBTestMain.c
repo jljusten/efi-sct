@@ -32,7 +32,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   SIMPLE_POINTER_PROTOCOL_TEST_REVISION,
   EFI_SIMPLE_POINTER_PROTOCOL_GUID,
   L"Simple Pointer Protocol Test",
-  L"EFI2.0 Simple Pointer Protocol Test"
+  L"EFI1.10 Simple Pointer Protocol Test"
 };
 
 

@@ -41,7 +41,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   UNICODE_COLLATION_PROTOCOL_TEST_REVISION,
   EFI_UNICODE_COLLATION_PROTOCOL_GUID,
   L"Unicode Collation Protocol Test",
-  L"EFI2.0 Unicode Collation Protocol Test"
+  L"EFI1.10 Unicode Collation Protocol Test"
 };
 
 

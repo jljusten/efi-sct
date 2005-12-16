@@ -32,7 +32,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   DISK_IO_PROTOCOL_TEST_REVISION,
   EFI_DISK_IO_PROTOCOL_GUID,
   L"Disk I/O Protocol Test",
-  L"EFI2.0 Disk I/O Protocol Test"
+  L"EFI1.10 Disk I/O Protocol Test"
 };
 
 

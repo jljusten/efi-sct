@@ -42,7 +42,7 @@ PrintUsage (
 
 EFI_STATUS
 ParseCommandLine (
-  VOID
+  IN EFI_HANDLE                   ImageHandle
   );
 
 EFI_STATUS
@@ -97,7 +97,7 @@ Returns:
   //
   // Parse the command line
   //
-  Status = ParseCommandLine ();
+  Status = ParseCommandLine (ImageHandle);
   if (EFI_ERROR (Status)) {
     Print (L"ERROR: Invalid command line. Status - %r\n", Status);
     FreeFrameworkTable ();
@@ -167,13 +167,17 @@ Routine Description:
 
 EFI_STATUS
 ParseCommandLine (
-  VOID
+  IN EFI_HANDLE                   ImageHandle
   )
 /*++
 
 Routine Description:
 
   Parse the command line.
+
+Arguments:
+
+  ImageHandle   - Handle of image for shell execution.
 
 Returns:
 
@@ -235,11 +239,27 @@ Returns:
       }
       gFT->Operations |= EFI_SCT_OPERATIONS_REPORT;
 
+      //
+      // The current working directory is "Report"
+      //
+      Status = SctChangeDirectory (ImageHandle, EFI_SCT_PATH_REPORT);
+      if (EFI_ERROR (Status)) {
+        return Status;
+      }
+
       Status = ExpandFileName (
                  Argv[Index + 1],
                  &gFT->RepDevicePath,
                  &gFT->RepFileName
                  );
+      if (EFI_ERROR (Status)) {
+        return Status;
+      }
+
+      //
+      // Restore the current working directory
+      //
+      Status = SctChangeDirectory (ImageHandle, L"..");
       if (EFI_ERROR (Status)) {
         return Status;
       }
@@ -269,11 +289,27 @@ Returns:
       }
       gFT->Operations |= EFI_SCT_OPERATIONS_SEQUENCE;
 
+      //
+      // The current working directory is "Sequence"
+      //
+      Status = SctChangeDirectory (ImageHandle, EFI_SCT_PATH_SEQUENCE);
+      if (EFI_ERROR (Status)) {
+        return Status;
+      }
+
       Status = ExpandFileName (
                  Argv[Index + 1],
                  &gFT->SeqDevicePath,
                  &gFT->SeqFileName
                  );
+      if (EFI_ERROR (Status)) {
+        return Status;
+      }
+
+      //
+      // Restore the current working directory
+      //
+      Status = SctChangeDirectory (ImageHandle, L"..");
       if (EFI_ERROR (Status)) {
         return Status;
       }

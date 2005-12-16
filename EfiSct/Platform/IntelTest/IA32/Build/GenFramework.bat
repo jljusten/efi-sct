@@ -40,6 +40,7 @@ mkdir %Framework%\Dependency
 mkdir %Framework%\Support
 mkdir %Framework%\Test
 mkdir %Framework%\Sequence
+mkdir %Framework%\Report
 
 rem *********************************************
 rem Copy the SCT framework and the related application

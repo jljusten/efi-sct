@@ -25,7 +25,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   BIS_TEST_REVISION,
   EFI_BIS_PROTOCOL_GUID,
   L"Boot Integrity Services Protocol Test",
-  L"EFI2.0 Boot Integrity Services Protocol Test"
+  L"EFI1.10 Boot Integrity Services Protocol Test"
 };
 
 EFI_GUID gSupportProtocolGuid1[2] = {

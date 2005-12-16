@@ -35,7 +35,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   SIMPLE_TEXT_OUTPUT_PROTOCOL_TEST_REVISION,
   EFI_SIMPLE_TEXT_OUT_PROTOCOL_GUID,
   L"Simple Text Output Protocol Test",
-  L"EFI2.0 Simple Text Output Protocol Test"
+  L"EFI1.10 Simple Text Output Protocol Test"
 };
 
 

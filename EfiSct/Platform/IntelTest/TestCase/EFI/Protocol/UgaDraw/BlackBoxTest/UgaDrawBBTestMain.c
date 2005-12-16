@@ -48,7 +48,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   UGA_DRAW_PROTOCOL_TEST_REVISION,
   EFI_UGA_DRAW_PROTOCOL_GUID,
   L"UGA Draw Protocol Test",
-  L"EFI2.0 UGA Draw Protocol Test"
+  L"EFI1.10 UGA Draw Protocol Test"
 };
 
 

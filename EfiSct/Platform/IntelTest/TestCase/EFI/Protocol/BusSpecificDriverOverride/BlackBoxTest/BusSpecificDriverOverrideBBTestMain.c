@@ -33,7 +33,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   BUS_SPECIFIC_DRIVER_OVERRIDE_PROTOCOL_TEST_REVISION,
   EFI_BUS_SPECIFIC_DRIVER_OVERRIDE_PROTOCOL_GUID,
   L"Bus Specific Driver Override Protocol Test",
-  L"EFI2.0 Bus Specific Driver Override Protocol Test"
+  L"EFI1.10 Bus Specific Driver Override Protocol Test"
 };
 
 

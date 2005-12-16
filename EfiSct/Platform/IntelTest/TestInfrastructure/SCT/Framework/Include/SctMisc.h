@@ -88,6 +88,12 @@ SctJudgeInput (
   );
 
 EFI_STATUS
+SctChangeDirectory (
+  IN EFI_HANDLE                   ImageHandle,
+  IN CHAR16                       *DirName
+  );
+
+EFI_STATUS
 SctCreateDirectory (
   IN EFI_FILE_HANDLE              RootDir,
   IN CHAR16                       *FileName

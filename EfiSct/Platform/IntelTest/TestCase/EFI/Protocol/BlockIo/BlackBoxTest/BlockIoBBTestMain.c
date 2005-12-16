@@ -31,7 +31,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   BLOCK_IO_PROTOCOL_TEST_REVISION,
   EFI_BLOCK_IO_PROTOCOL_GUID,
   L"Block I/O Protocol Test",
-  L"EFI2.0 Block I/O Protocol Test"
+  L"EFI1.10 Block I/O Protocol Test"
 };
 
 EFI_GUID gSupportProtocolGuid1[2] = {

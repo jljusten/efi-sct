@@ -42,7 +42,7 @@ EFI_BB_TEST_PROTOCOL_FIELD gBBTestProtocolField = {
   EBC_TEST_REVISION,
   EFI_EBC_PROTOCOL_GUID,
   L"Ebc Protocol Test",
-  L"EFI2.0 EFI Byte Code Protocol Test"
+  L"EFI1.10 EFI Byte Code Protocol Test"
 };
 
 EFI_GUID gSupportProtocolGuid1[2] = {
