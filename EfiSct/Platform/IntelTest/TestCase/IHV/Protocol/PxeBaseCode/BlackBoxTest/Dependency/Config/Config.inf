@@ -1,0 +1,32 @@
+#/*++
+#
+# Copyright (c) 2005, Intel Corporation
+# All rights reserved. This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the Eclipse Public License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://www.opensource.org/licenses/eclipse-1.0.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE ECLIPSE PUBLIC LICENSE (EPL) ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+# Module Name:
+#
+#   Config.inf
+#
+# Abstract:
+#
+#   Component description file for creating a configuration file.
+#
+#--*/
+
+[defines]
+BASE_NAME            = PxeBaseCode_PxeBaseCodeBbTest
+FILE_GUID            = C0A87EC1-FEFD-41d0-8A52-5F3B74B60FAF
+COMPONENT_TYPE       = BS_DRIVER
+BUILD_TYPE           = CUSTOM_MAKEFILE
+
+[sources.common]
+
+[nmake.common]
+
+[includes.common]

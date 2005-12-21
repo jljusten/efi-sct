@@ -1,0 +1,1111 @@
+/*++
+
+Copyright (c) 2005, Intel Corporation
+All rights reserved. This program and the accompanying materials
+are licensed and made available under the terms and conditions of the Eclipse Public License
+which accompanies this distribution.  The full text of the license may be found at
+http://www.opensource.org/licenses/eclipse-1.0.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE ECLIPSE PUBLIC LICENSE (EPL) ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+Module Name:
+
+  PxeBaseCodeBBTestSupport.c
+
+Abstract:
+
+  Common function used in PXE Base Code test.
+
+--*/
+#include "PxeBaseCodeBBTestMain.h"
+#include "PxeBaseCodeBBTestSupport.h"
+
+#define EFI_SCT_FILE_DEVICE_CONFIG          L"Data\\DeviceConfig.ini"
+#define EFI_SCT_SECTION_DEVICE_CONFIG       L"Device Configuration"
+
+#define EFI_SCT_MAX_BUFFER_SIZE             512
+
+EFI_DEVICE_PATH_PROTOCOL        *gDevicePath     = NULL;
+CHAR16                          *gFilePath       = NULL;
+
+//
+// Internal function declarations
+//
+
+EFI_STATUS
+GatherConfigHandles (
+  IN EFI_HANDLE         SupportHandle,
+  OUT UINTN             *NoConfigHandles,
+  OUT EFI_HANDLE        **ConfigHandleBuffer
+  );
+
+VOID
+InsertChildHandles (
+  IN OUT UINTN          *NoHandles,
+  IN OUT EFI_HANDLE     *HandleBuffer,
+  IN EFI_HANDLE         Handle,
+  IN BOOLEAN            Recursive
+  );
+
+BOOLEAN
+InsertHandle (
+  IN OUT UINTN          *NoHandles,
+  IN OUT EFI_HANDLE     *HandleBuffer,
+  IN EFI_HANDLE         Handle
+  );
+
+BOOLEAN
+MatchHandleInterface (
+  IN UINTN              NoHandles,
+  IN EFI_HANDLE         *HandleBuffer,
+  IN EFI_GUID           *ClientGuid,
+  IN VOID               *ClientInterface
+  );
+
+EFI_STATUS
+DeviceConfigGetOrderNum (
+  IN EFI_INI_FILE_HANDLE    IniFile,
+  OUT UINT32                *OrderNum
+  );
+
+EFI_STATUS
+DeviceConfigGetString (
+  IN EFI_INI_FILE_HANDLE    IniFile,
+  IN UINT32                 Order,
+  IN CHAR16                 *Key,
+  OUT CHAR16                *Buffer
+  );
+
+EFI_STATUS
+DeviceConfigSetString (
+  IN EFI_INI_FILE_HANDLE    IniFile,
+  IN UINT32                 Order,
+  IN CHAR16                 *Key,
+  IN CHAR16                 *Buffer
+  );
+
+//
+// External function implementations
+//
+
+/**
+ *  Verify whether it is one of IHV interfaces.
+ */
+BOOLEAN
+IsIhvInterface (
+  IN VOID                       *ClientInterface,
+  IN EFI_HANDLE                 SupportHandle
+  )
+{
+  EFI_STATUS            Status;
+  BOOLEAN               Result;
+  UINTN                 NoConfigHandles;
+  EFI_HANDLE            *ConfigHandleBuffer;
+
+  //
+  // Gather all related handles from device configuration file
+  //
+  Status = GatherConfigHandles (
+             SupportHandle,
+             &NoConfigHandles,
+             &ConfigHandleBuffer
+             );
+  if (EFI_ERROR (Status)) {
+    return FALSE;
+  }
+
+  //
+  // Find the matched handle with interface
+  //
+  Result = MatchHandleInterface (
+             NoConfigHandles,
+             ConfigHandleBuffer,
+             &gEfiPxeBaseCodeProtocolGuid,
+             ClientInterface
+             );
+
+  //
+  // Free sources
+  //
+  gtBS->FreePool (ConfigHandleBuffer);
+
+  //
+  // Done
+  //
+  return Result;
+}
+
+/**
+ *  Support function - Get test support protocol library.
+ *  @param SupportHandle  A handle containing support protocols.
+ *  @param StandardLib    A pointer to Standard Test Support Protocol.
+ *  @param ProfileLib    A pointer to Test Profile Support Protocol.
+ *  @return EFI_SUCCESS   Successfully.
+ *  @return Other value   Something failed.
+ */
+EFI_STATUS
+GetTestSupportLibrary (
+  IN  EFI_HANDLE                          SupportHandle,
+  OUT EFI_STANDARD_TEST_LIBRARY_PROTOCOL  **StandardLib,
+  OUT EFI_TEST_PROFILE_LIBRARY_PROTOCOL   **ProfileLib,
+  OUT EFI_TEST_LOGGING_LIBRARY_PROTOCOL   **LoggingLib
+  )
+{
+  EFI_STATUS            Status;
+
+  //
+  // Get the standard test support library interface
+  //
+  if (NULL != StandardLib)
+  {
+    *StandardLib = NULL;
+    Status = gtBS->HandleProtocol (
+                     SupportHandle,
+                     &gEfiStandardTestLibraryGuid,
+                     StandardLib
+                     );
+    if (EFI_ERROR(Status)) {
+      return Status;
+    }
+  }
+  //
+  // Get the test profile support library interface
+  //
+  if (NULL != ProfileLib)
+  {
+    *ProfileLib = NULL;
+    Status = gtBS->HandleProtocol (
+                     SupportHandle,
+                     &gEfiTestProfileLibraryGuid,
+                     ProfileLib
+                     );
+    if (EFI_ERROR(Status)) {
+      return Status;
+    }
+  }
+
+  //
+  // Get the test profile support library interface
+  //
+  if (NULL != LoggingLib)
+  {
+    *LoggingLib = NULL;
+    Status = gtBS->HandleProtocol (
+                     SupportHandle,
+                     &gEfiTestLoggingLibraryGuid,
+                     LoggingLib
+                     );
+    if (EFI_ERROR(Status)) {
+      return Status;
+    }
+  }
+  return EFI_SUCCESS;
+}
+
+/**
+ *  Support function - Open Cpu IO Test .ini file.
+ *  @param ProfileLib    A pointer to EFI_TEST_PROFILE_LIBRARY_PROTOCOL
+ *                        instance.
+ *  @param FileHandle     A pointer to EFI_INI_FILE_HANDLE instance.
+ *  @return EFI_SUCCESS   Successfully.
+ *  @return Other value   Something failed.
+ */
+EFI_STATUS
+OpenTestIniFile (
+  IN   EFI_TEST_PROFILE_LIBRARY_PROTOCOL  *ProfileLib,
+  OUT  EFI_INI_FILE_HANDLE                *FileHandle
+  )
+{
+  CHAR16     *FilePath;
+  EFI_STATUS Status;
+
+  FilePath = NULL;
+  FilePath = PoolPrint (L"%s\\%s", gFilePath, PXE_BC_TEST_INI_FILE);
+
+  if (FilePath == NULL) {
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  //
+  //open the profile.
+  //
+  Status =ProfileLib->EfiIniOpen (
+                        ProfileLib,
+                        gDevicePath,
+                        FilePath,
+                        FileHandle
+                        );
+
+  //
+  //free the file path not to be used.
+  //
+
+  gtBS->FreePool (FilePath);
+
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+
+  //
+  //done successfully.
+  //
+  return EFI_SUCCESS;
+}
+
+/**
+ *  get the device path and file path.
+ *  @param ImageHandle the Image Handle instance.
+ *  @return EFI_SUCCESS the device path and file path were gotten successfully.
+ */
+EFI_STATUS
+GetSystemDevicePathAndFilePath (
+  IN EFI_HANDLE           ImageHandle
+  )
+{
+  EFI_STATUS                  Status;
+  EFI_DEVICE_PATH_PROTOCOL    *TempDevicePath;
+  CHAR16                      *TempFilePath;
+  EFI_TEST_PROFILE_LIBRARY_PROTOCOL  *ProfileLib;
+
+  //
+  // Use profile lib at here just for less effect on the current system. It is
+  // dependent on the implementation of test framework. So need to be updated
+  // later.
+  //
+  Status = gtBS->LocateProtocol (
+                   &gEfiTestProfileLibraryGuid,
+                   NULL,
+                   &ProfileLib
+                   );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  //
+  // Get the system device path and file path
+  //
+  Status = ProfileLib->EfiGetSystemDevicePath (
+                         ProfileLib,
+                         &TempDevicePath,
+                         &TempFilePath
+                         );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  //
+  //make up the file path.
+  //
+  gFilePath = NULL;
+  gFilePath = PoolPrint (L"%s\\%s", TempFilePath, DEPENDECY_DIR_NAME);
+
+  gtBS->FreePool (TempFilePath);
+
+  if (gFilePath == NULL) {
+    gtBS->FreePool (TempDevicePath);
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  gDevicePath = TempDevicePath;
+
+
+  //
+  // Done, return status code EFI_SUCCESS
+  //
+  return EFI_SUCCESS;
+}
+
+/**
+ *  Support Function - Close the test ini file.
+ *  @param ProfileLib    A pointer to EFI_TEST_PROFILE_LIBRARY_PROTOCOL
+ *                        instance.
+ *  @param FileHandle the ini File Handle to be closed.
+ *  @return EFI_SUCCESS.
+ */
+EFI_STATUS
+CloseTestIniFile (
+  IN   EFI_TEST_PROFILE_LIBRARY_PROTOCOL  *ProfileLib,
+  OUT  EFI_INI_FILE_HANDLE                FileHandle
+  )
+{
+ return ProfileLib->EfiIniClose (
+                      ProfileLib,
+                      FileHandle
+                      );
+
+}
+/**
+ *  get the Invalid Base Address from the profile.
+ *  @param FileHandle the EFI_INI_FILE_HANDLE instance.
+ *  @param SectionName the Section Name string pointer.
+ *  @param ItemName: the Item Name string pointer.
+ *  @param Ip: returned EFI_IP_ADDRESS instance.
+ *  @return EFI_SUCCESS the Invalid Address was get successfully.
+ */
+EFI_STATUS
+GetIpAddrFromFile (
+  IN  EFI_INI_FILE_HANDLE   FileHandle,
+  IN  CHAR16                *SectionName,
+  IN  CHAR16                *ItemName,
+  IN  UINT32                Order,
+  OUT EFI_IP_ADDRESS        *Ip
+  )
+{
+  CHAR16          Buffer[MAX_STRING_LEN];
+  EFI_STATUS      Status;
+  UINT32          MaxLen;
+  CHAR16*         Addr[4];
+  UINTN           i, j, Len;
+
+  if (SectionName == NULL || ItemName == NULL || Ip == NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  MaxLen    = MAX_STRING_LEN;
+  Buffer[0] = L'\0';
+
+  Status = FileHandle->GetStringByOrder (
+                         FileHandle,
+                         Order,
+                         SectionName,
+                         ItemName,
+                         Buffer,
+                         (UINT32 *)&MaxLen
+                         );
+
+  if (EFI_ERROR(Status))
+    return Status;
+
+  //NP_Print (L"Buffer: %s\n", Buffer);
+
+  i = 0;
+  Addr[i] = Buffer;
+  Len = StrLen (Buffer);
+  for (j=1; j < Len; j++)
+  {
+    //NP_Print (L"i=%d, Buffer[%d]=%c\n", i, j, Buffer[j]);
+    if (Buffer[j] == L'.')
+    {
+      i++;
+      if (i<4)
+      {
+        NP_Print (L"i=%d \n", i);
+        Addr[i] = Buffer + j + 1;
+        Buffer[j] = L'\0';
+      } else {
+        Print (L"i=%d \n", i);
+        return EFI_INVALID_PARAMETER;
+      }
+    }
+  }
+
+  if (i==3)
+  {
+    NP_Print (L"i=%d, Addr[0]=%s, Addr[1]=%s, Addr[2]=%s, Addr[3]=%s\n",
+              i, Addr[0], Addr[1], Addr[2], Addr[3]);
+    Ip->v4.Addr[0] = (UINT8)Atoi (Addr[0]);
+    Ip->v4.Addr[1] = (UINT8)Atoi (Addr[1]);
+    Ip->v4.Addr[2] = (UINT8)Atoi (Addr[2]);
+    Ip->v4.Addr[3] = (UINT8)Atoi (Addr[3]);
+
+    return EFI_SUCCESS;
+  }
+
+  return EFI_INVALID_PARAMETER; // ip address must be in the format of XX.XX.XX.XX
+}
+
+EFI_STATUS
+GetBooleanVarFromFile (
+  IN  EFI_INI_FILE_HANDLE   FileHandle,
+  IN  CHAR16                *SectionName,
+  IN  CHAR16                *ItemName,
+  IN  UINT32                Order,
+  OUT BOOLEAN               *Val
+  )
+{
+  CHAR16          Buffer[MAX_STRING_LEN];
+  EFI_STATUS      Status;
+  UINT32          MaxLen;
+
+
+  if (SectionName == NULL || ItemName== NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  MaxLen    = MAX_STRING_LEN;
+  Buffer[0] = '\0';
+
+  Status = FileHandle->GetStringByOrder (
+                         FileHandle,
+                         Order,
+                         SectionName,
+                         ItemName,
+                         Buffer,
+                         (UINT32 *)&MaxLen
+                         );
+
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+
+  if (StrLen (Buffer) == 0) {
+    return EFI_NOT_FOUND;
+  }
+
+  if (StriCmp (Buffer, L"TRUE"))
+    *Val = FALSE;
+  else
+    *Val = TRUE;
+
+  return EFI_SUCCESS;
+}
+
+EFI_STATUS
+GetUINT32VarFromFile (
+  IN  EFI_INI_FILE_HANDLE   FileHandle,
+  IN  CHAR16                *SectionName,
+  IN  CHAR16                *ItemName,
+  IN  UINT32                Order,
+  OUT UINT32                *Val
+  )
+{
+  CHAR16          Buffer[MAX_STRING_LEN];
+  EFI_STATUS      Status;
+  UINT32          MaxLen;
+
+
+  if (SectionName == NULL || ItemName== NULL || Val ==NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  MaxLen    = MAX_STRING_LEN;
+  Buffer[0] = '\0';
+
+  Status = FileHandle->GetStringByOrder (
+                         FileHandle,
+                         (UINT32)Order,
+                         SectionName,
+                         ItemName,
+                         Buffer,
+                         (UINT32 *)&MaxLen
+                         );
+
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+
+  if (StrLen (Buffer) == 0) {
+    return EFI_NOT_FOUND;
+  }
+
+  *Val = STR_TO_INT (Buffer);
+
+  NP_Print (L"Val: %d\n", *Val);
+
+  return EFI_SUCCESS;
+}
+
+EFI_STATUS
+GetUINTNVarFromFile (
+  IN  EFI_INI_FILE_HANDLE   FileHandle,
+  IN  CHAR16                *SectionName,
+  IN  CHAR16                *ItemName,
+  IN  UINT32                Order,
+  OUT UINTN                 *Val
+  )
+{
+  return GetUINT32VarFromFile (FileHandle, SectionName, ItemName, 0, (UINT32*)Val);;
+}
+
+EFI_STATUS
+GetUINT16ValFromFile (
+  IN  EFI_INI_FILE_HANDLE   FileHandle,
+  IN  CHAR16                *SectionName,
+  IN  CHAR16                *ItemName,
+  IN  UINT32                Order,
+  OUT UINT16                *Val
+  )
+{
+  EFI_STATUS Status;
+  UINTN TempData;
+
+  Status = GetUINTNVarFromFile (FileHandle, SectionName, ItemName, 0, &TempData);
+  if (EFI_ERROR(Status))
+    return Status;
+
+  *Val = (UINT16)TempData;
+  return EFI_SUCCESS;
+}
+
+EFI_STATUS
+GetUdpPortFromFile (
+  IN  EFI_INI_FILE_HANDLE           FileHandle,
+  IN  CHAR16                        *SectionName,
+  IN  CHAR16                        *ItemName,
+  IN  UINT32                        Order,
+  OUT EFI_PXE_BASE_CODE_UDP_PORT    *Val
+  )
+{
+  return GetUINT16ValFromFile (FileHandle, SectionName, ItemName, 0, Val);
+}
+
+EFI_STATUS
+GetAsciiStringFromFile (
+  IN     EFI_INI_FILE_HANDLE    FileHandle,
+  IN     CHAR16                 *SectionName,
+  IN     CHAR16                 *ItemName,
+  IN     UINT32                 Order,
+  IN OUT CHAR8                  **String
+  )
+{
+  CHAR16              Buffer[MAX_STRING_LEN];
+  EFI_STATUS          Status;
+  UINT32              MaxLen;
+  CHAR8*              TempStr;
+  UINTN               i;
+
+  if (SectionName == NULL || ItemName == NULL || String == NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  MaxLen    = MAX_STRING_LEN;
+  Buffer[0] = '\0';
+
+  Status = FileHandle->GetStringByOrder (
+                         FileHandle,
+                         (UINT32)Order,
+                         SectionName,
+                         ItemName,
+                         Buffer,
+                         &MaxLen
+                         );
+
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+
+  if (StrLen (Buffer) == 0) {
+    return EFI_NOT_FOUND;
+  }
+
+  // Allocate Pool
+  TempStr = NULL;
+  TempStr = AllocatePool (StrLen (Buffer)+1);
+  if (TempStr == NULL) {
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  for (i=0; i< StrLen (Buffer);i++)
+  {
+    TempStr[i] = (CHAR8)(Buffer[i]);
+    NP_Print (L"%c", TempStr[i]);
+  }
+  TempStr[i] = '\0';
+  *String = TempStr;
+
+  Print (L"\n");
+  return EFI_SUCCESS;
+}
+
+EFI_STATUS
+GetUnicodeStringFromFile (
+  IN      EFI_INI_FILE_HANDLE   FileHandle,
+  IN      CHAR16                *SectionName,
+  IN      CHAR16                *ItemName,
+  IN      UINT32                Order,
+  IN OUT  CHAR16                **String
+  )
+{
+  CHAR16              Buffer[MAX_STRING_LEN];
+  EFI_STATUS          Status;
+  UINT32              MaxLen;
+  CHAR16             *TempStr;
+
+  if (SectionName == NULL || ItemName == NULL || String == NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  MaxLen    = MAX_STRING_LEN;
+  Buffer[0] = '\0';
+
+  Status = FileHandle->GetStringByOrder (
+                         FileHandle,
+                         (UINT32)Order,
+                         SectionName,
+                         ItemName,
+                         Buffer,
+                         &MaxLen
+                         );
+
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+
+  if (StrLen (Buffer) == 0) {
+    return EFI_NOT_FOUND;
+  }
+
+  TempStr = NULL;
+  TempStr = StrDuplicate (Buffer);
+  if (TempStr == NULL) {
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  *String = TempStr;
+
+  return EFI_SUCCESS;
+}
+
+EFI_STATUS
+GetRawDataFromFile (
+  IN      EFI_INI_FILE_HANDLE FileHandle,
+  IN      CHAR16              *SectionName,
+  IN      CHAR16              *ItemName,
+  IN      UINT32              Order,
+  IN OUT  UINTN               *BufferSize,
+  IN OUT  VOID                *BufferPtr
+)
+{
+  CHAR16            Buffer[MAX_STRING_LEN];
+  EFI_STATUS        Status;
+  UINT32            MaxLen;
+  UINTN             i;
+  CHAR16            TempData[3];
+  UINT8             TempVal, *TempPtr;
+
+  if (SectionName == NULL || ItemName == NULL || BufferPtr == NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  MaxLen    = MAX_STRING_LEN;
+  Buffer[0] = '\0';
+
+  Status = FileHandle->GetStringByOrder (
+                         FileHandle,
+                         (UINT32)Order,
+                         SectionName,
+                         ItemName,
+                         Buffer,
+                         &MaxLen
+                         );
+
+  if (EFI_ERROR(Status)) {
+    return Status;
+  }
+
+  if (StrLen (Buffer) == 0) {
+    return EFI_NOT_FOUND;
+  }
+
+  TempData[2]='\0';
+  TempPtr = BufferPtr;
+  for (i=0;i<StrLen (Buffer);i+=2)
+  {
+    TempData[0] = Buffer[i];
+    TempData[1] = Buffer[i+1];
+    TempVal = (UINT8)(xtoi (TempData));
+    TempPtr[i/2] = TempVal;
+    NP_Print (L"TempPtr[%d]=%d\n", i/2, TempPtr[i/2]);
+  }
+
+  return EFI_SUCCESS;
+}
+
+EFI_STATUS
+ReadMtftpFile (
+  IN OUT VOID   **Buffer,
+  IN OUT UINTN  *Size
+  )
+{
+  return EFI_SUCCESS;
+}
+
+//
+// Internal function implementation
+//
+
+EFI_STATUS
+GatherConfigHandles (
+  IN EFI_HANDLE         SupportHandle,
+  OUT UINTN             *NoConfigHandles,
+  OUT EFI_HANDLE        **ConfigHandleBuffer
+  )
+{
+  EFI_STATUS                          Status;
+  EFI_TEST_PROFILE_LIBRARY_PROTOCOL   *ProfileLib;
+  EFI_DEVICE_PATH_PROTOCOL            *DevicePath;
+  CHAR16                              *FilePath;
+  CHAR16                              *ConfigFilePath;
+  EFI_INI_FILE_HANDLE                 IniFile;
+  UINT32                              Order;
+  UINT32                              OrderNum;
+  CHAR16                              Buffer[EFI_SCT_MAX_BUFFER_SIZE];
+  UINTN                               Index;
+  UINTN                               NoHandles;
+  EFI_HANDLE                          *HandleBuffer;
+  CHAR16                              *DevicePathStr;
+
+  //
+  // Locate test profile library protocol
+  //
+  Status = gtBS->HandleProtocol (
+                   SupportHandle,
+                   &gEfiTestProfileLibraryGuid,
+                   &ProfileLib
+                   );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  //
+  // Get the system device path and file path
+  //
+  Status = ProfileLib->EfiGetSystemDevicePath (
+                         ProfileLib,
+                         &DevicePath,
+                         &FilePath
+                         );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  ConfigFilePath = PoolPrint (L"%s\\%s", FilePath, EFI_SCT_FILE_DEVICE_CONFIG);
+  if (ConfigFilePath == NULL) {
+    gtBS->FreePool (DevicePath);
+    gtBS->FreePool (FilePath);
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  gtBS->FreePool (FilePath);
+
+  //
+  // Open the device configuration file
+  //
+  Status = ProfileLib->EfiIniOpen (
+                         ProfileLib,
+                         DevicePath,
+                         ConfigFilePath,
+                         &IniFile
+                         );
+  if (EFI_ERROR (Status)) {
+    gtBS->FreePool (DevicePath);
+    gtBS->FreePool (ConfigFilePath);
+    return Status;
+  }
+
+  gtBS->FreePool (DevicePath);
+  gtBS->FreePool (ConfigFilePath);
+
+  //
+  // Get the number of device configuration data
+  //
+  Status = DeviceConfigGetOrderNum (
+             IniFile,
+             &OrderNum
+             );
+  if (EFI_ERROR (Status)) {
+    ProfileLib->EfiIniClose (ProfileLib, IniFile);
+    return Status;
+  }
+
+  //
+  // Get all handles
+  //
+  Status = gtBS->LocateHandleBuffer (
+                   AllHandles,
+                   NULL,
+                   NULL,
+                   &NoHandles,
+                   &HandleBuffer
+                   );
+  if (EFI_ERROR (Status)) {
+    ProfileLib->EfiIniClose (ProfileLib, IniFile);
+    return Status;
+  }
+
+  //
+  // Initialize the output variables
+  //
+  *NoConfigHandles = 0;
+
+  Status = gtBS->AllocatePool (
+                   EfiBootServicesData,
+                   sizeof(EFI_HANDLE) * NoHandles,
+                   (VOID **)ConfigHandleBuffer
+                   );
+  if (EFI_ERROR (Status)) {
+    ProfileLib->EfiIniClose (ProfileLib, IniFile);
+    gtBS->FreePool (HandleBuffer);
+    return Status;
+  }
+
+  //
+  // Scan each device configuration data
+  //
+  for (Order = 0; Order < OrderNum; Order++) {
+    //
+    // Here, only need to find the matched device path in the system
+    //
+    Status = DeviceConfigGetString (
+               IniFile,
+               Order,
+               L"DevicePath",
+               Buffer
+               );
+    if (EFI_ERROR (Status)) {
+      continue;
+    }
+
+    //
+    // Search the matched device path in the system
+    //
+    for (Index = 0; Index < NoHandles; Index++) {
+      Status = gtBS->HandleProtocol (
+                       HandleBuffer[Index],
+                       &gEfiDevicePathProtocolGuid,
+                       &DevicePath
+                       );
+      if (EFI_ERROR (Status)) {
+        continue;
+      }
+
+      DevicePathStr = DevicePathToStr (DevicePath);
+
+      if (StrCmp (Buffer, DevicePathStr) == 0) {
+        gtBS->FreePool (DevicePathStr);
+        break;
+      }
+
+      gtBS->FreePool (DevicePathStr);
+    }
+
+    //
+    // Found it?
+    //
+    if (Index < NoHandles) {
+      InsertChildHandles (
+        NoConfigHandles,
+        *ConfigHandleBuffer,
+        HandleBuffer[Index],
+        TRUE
+        );
+    }
+  }
+
+  //
+  // Free resources
+  //
+  gtBS->FreePool (HandleBuffer);
+
+  //
+  // Close the device configuration file
+  //
+  ProfileLib->EfiIniClose (ProfileLib, IniFile);
+
+  //
+  // Done
+  //
+  return EFI_SUCCESS;
+}
+
+VOID
+InsertChildHandles (
+  IN OUT UINTN          *NoHandles,
+  IN OUT EFI_HANDLE     *HandleBuffer,
+  IN EFI_HANDLE         Handle,
+  IN BOOLEAN            Recursive
+  )
+{
+  EFI_STATUS                            Status;
+  BOOLEAN                               Result;
+  UINTN                                 Index1;
+  UINTN                                 Index2;
+  UINTN                                 ProtocolBufferCount;
+  EFI_GUID                              **ProtocolBuffer;
+  UINTN                                 EntryCount;
+  EFI_OPEN_PROTOCOL_INFORMATION_ENTRY   *EntryBuffer;
+
+  //
+  // Insert the handle itself
+  //
+  Result = InsertHandle (
+             NoHandles,
+             HandleBuffer,
+             Handle
+             );
+  if (!Result) {
+    //
+    // Return if this handle already exists (stands for it has been processed.)
+    //
+    return;
+  }
+
+  //
+  // Locate all protocols on the handle
+  //
+  Status = gtBS->ProtocolsPerHandle (
+                   Handle,
+                   &ProtocolBuffer,
+                   &ProtocolBufferCount
+                   );
+  if (EFI_ERROR (Status)) {
+    return;
+  }
+
+  //
+  // Get the open protocol information for each protocol
+  //
+  for (Index1 = 0; Index1 < ProtocolBufferCount; Index1++) {
+    //
+    // Get the open protocol information
+    //
+    Status = gtBS->OpenProtocolInformation (
+                     Handle,
+                     ProtocolBuffer[Index1],
+                     &EntryBuffer,
+                     &EntryCount
+                     );
+    if (EFI_ERROR (Status)) {
+      continue;
+    }
+
+    for (Index2 = 0; Index2 < EntryCount; Index2++) {
+      //
+      // Deal with the protocol opened by driver or by child controller
+      //
+      if ((EntryBuffer[Index2].Attributes & EFI_OPEN_PROTOCOL_BY_DRIVER          ) ||
+          (EntryBuffer[Index2].Attributes & EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER)) {
+        //
+        // Insert the agent handle
+        //
+        InsertHandle (
+          NoHandles,
+          HandleBuffer,
+          EntryBuffer[Index2].AgentHandle
+          );
+
+        //
+        // Insert the controller handle
+        //
+        if (Recursive) {
+          InsertChildHandles (
+            NoHandles,
+            HandleBuffer,
+            EntryBuffer[Index2].ControllerHandle,
+            Recursive
+            );
+        }
+      }
+    }
+
+    gtBS->FreePool (EntryBuffer);
+  }
+
+  //
+  // Free resources
+  //
+  gtBS->FreePool (ProtocolBuffer);
+}
+
+BOOLEAN
+InsertHandle (
+  IN OUT UINTN          *NoHandles,
+  IN OUT EFI_HANDLE     *HandleBuffer,
+  IN EFI_HANDLE         Handle
+  )
+{
+  UINTN   Index;
+
+  for (Index = 0; Index < *NoHandles; Index++) {
+    if (HandleBuffer[Index] == Handle) {
+      return FALSE;
+    }
+  }
+
+  HandleBuffer[*NoHandles] = Handle;
+  (*NoHandles) ++;
+
+  return TRUE;
+}
+
+BOOLEAN
+MatchHandleInterface (
+  IN UINTN              NoHandles,
+  IN EFI_HANDLE         *HandleBuffer,
+  IN EFI_GUID           *ClientGuid,
+  IN VOID               *ClientInterface
+  )
+{
+  EFI_STATUS  Status;
+  UINTN       Index;
+  VOID        *Interface;
+
+  for (Index = 0; Index < NoHandles; Index++) {
+    Status = gtBS->HandleProtocol (
+                     HandleBuffer[Index],
+                     ClientGuid,
+                     &Interface
+                     );
+    if (EFI_ERROR (Status)) {
+      continue;
+    }
+
+    if (Interface == ClientInterface) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+EFI_STATUS
+DeviceConfigGetOrderNum (
+  IN EFI_INI_FILE_HANDLE    IniFile,
+  OUT UINT32                *OrderNum
+  )
+{
+  return IniFile->GetOrderNum (
+                    IniFile,
+                    EFI_SCT_SECTION_DEVICE_CONFIG,
+                    OrderNum
+                    );
+}
+
+EFI_STATUS
+DeviceConfigGetString (
+  IN EFI_INI_FILE_HANDLE    IniFile,
+  IN UINT32                 Order,
+  IN CHAR16                 *Key,
+  OUT CHAR16                *Buffer
+  )
+{
+  UINT32  BufferSize;
+
+  BufferSize = EFI_SCT_MAX_BUFFER_SIZE;
+  return IniFile->GetStringByOrder (
+                    IniFile,
+                    Order,
+                    EFI_SCT_SECTION_DEVICE_CONFIG,
+                    Key,
+                    Buffer,
+                    &BufferSize
+                    );
+}
+
+EFI_STATUS
+DeviceConfigSetString (
+  IN EFI_INI_FILE_HANDLE    IniFile,
+  IN UINT32                 Order,
+  IN CHAR16                 *Key,
+  IN CHAR16                 *Buffer
+  )
+{
+  return IniFile->SetStringByOrder (
+                    IniFile,
+                    Order,
+                    EFI_SCT_SECTION_DEVICE_CONFIG,
+                    Key,
+                    Buffer
+                    );
+}

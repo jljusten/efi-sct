@@ -52,6 +52,7 @@ Abstract:
 #include "SctOperation.h"
 #include "SctOutput.h"
 #include "SctReport.h"
+#include "SctDeviceConfig.h"
 #include "SctUi.h"
 
 #include "SctDef.h"

@@ -41,7 +41,12 @@ all : efi_sct
 #
 # Build EFI SCT package
 #
-efi_sct : build_tools makefiles builds framework
+efi_sct : build_tools makefiles builds efi_framework
+
+#
+# Build IHV SCT package
+#
+ihv_sct : build_tools makefiles builds ihv_framework
 
 #
 # Make all the build tools by calling the makefile
@@ -77,8 +82,11 @@ builds :
 #
 # Generate the test suite and test cases
 #
-framework :
-  GenFramework.bat
+efi_framework :
+  GenFramework.bat efi_sct
+
+ihv_framework:
+  GenFramework.bat ihv_sct
 
 #
 # Create a target to clean up all build directories

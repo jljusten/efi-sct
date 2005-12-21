@@ -65,6 +65,11 @@ copy ..\..\Config\Data\Category.ini       %Framework%\Data\       > NUL
 copy ..\..\Config\Data\GuidFile.txt       %Framework%\Data\       > NUL
 
 rem *********************************************
+rem For EFI SCT
+rem *********************************************
+
+if %1. EQU efi_sct. (
+  rem *********************************************
 rem Copy the EFI 1.10 Test Cases
 rem *********************************************
 
@@ -115,10 +120,6 @@ rem *********************************************
 rem Copy the test dependency files
 rem *********************************************
 
-rem
-rem Dependency files for Protocol Handler Services Test
-rem
-
 call :CopyDependency EfiCompliant
 call :CopyDependency ProtocolHandlerServices
 call :CopyDependency ImageServices
@@ -129,6 +130,49 @@ call :CopyDependency LoadedImage
 call :CopyDependency PciIo
 call :CopyDependency PciRootBridgeIo
 call :CopyDependency PxeBaseCode
+)
+
+rem *********************************************
+rem For IHV SCT
+rem *********************************************
+
+if %1. EQU ihv_sct. (
+  rem *********************************************
+  rem Copy the EFI 1.10 Test Cases for IHV
+  rem *********************************************
+
+  copy %ProcessorType%\IhvBlockIoBbTest.efi                     %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvComponentNameBbTest.efi               %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvBusSpecificDriverOverrideBbTest.efi   %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvDeviceIoBbTest.efi                    %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvDevicePathBbTest.efi                  %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvDiskIoBbTest.efi                      %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvDriverBindingBbTest.efi               %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvDriverConfigurationBbTest.efi         %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvDriverDiagnosticsBbTest.efi           %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvEbcBbTest.efi                         %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvPlatformDriverOverrideBbTest.efi      %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvPxeBaseCodeBbTest.efi                 %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvScsiPassThruBbTest.efi                %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvSerialIoBbTest.efi                    %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvSimpleFileSystemBbTest.efi            %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvSimpleNetworkBbTest.efi               %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvSimplePointerBbTest.efi               %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvSimpleTextInBbTest.efi                %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvSimpleTextOutBbTest.efi               %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvUgaDrawBbTest.efi                     %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvUnicodeCollationBbTest.efi            %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvUsbHcTest.efi                         %Framework%\Test\ > NUL
+  copy %ProcessorType%\IhvUsbIoTest.efi                         %Framework%\Test\ > NUL
+
+  rem *********************************************
+  rem Copy the test dependency files
+  rem *********************************************
+
+  call :CopyDependency DeviceIo
+  call :CopyDependency Ebc
+  call :CopyDependency PxeBaseCode
+)
 
 echo DONE!
 goto :EOF

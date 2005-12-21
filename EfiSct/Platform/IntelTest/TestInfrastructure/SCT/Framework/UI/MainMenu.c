@@ -34,6 +34,7 @@ Abstract:
 #define EFI_MENU_ITEM_REPORT_GENERATOR    2
 #define EFI_MENU_ITEM_VIEW_LOG            3
 #define EFI_MENU_ITEM_UTILITY             4
+#define EFI_MENU_ITEM_DEVICE_CONFIG       5
 
 //
 // a globel variable indicating continue exec flag
@@ -58,6 +59,11 @@ DisplayMainMenu (
 //
 // Prototypes (internal)
 //
+
+VOID
+DisplayDeviceConfig (
+  IN EFI_MENU_PAGE                *Page
+  );
 
 VOID
 DisplayReportGenerator(
@@ -160,6 +166,18 @@ Returns:
              L"Test Environment Configuration",
              L"Set configuration data for testing",
              (VOID *)(UINTN)EFI_MENU_ITEM_CONFIG,
+             Page
+             );
+  if (EFI_ERROR(Status)) {
+    DestroyMenuPage (Page);
+    return Status;
+  }
+
+  Status = AddSimpleMenuItem (
+             EFI_ITEM_HAVE_SUBITEMS,
+             L"Test Device Configuration",
+             L"Set device configuration data for IHV's add-in card testing",
+             (VOID *)(UINTN)EFI_MENU_ITEM_DEVICE_CONFIG,
              Page
              );
   if (EFI_ERROR(Status)) {
@@ -413,16 +431,20 @@ Reutrns
       DisplayConfigMenu (Page);
       break;
 
+    case EFI_MENU_ITEM_DEVICE_CONFIG:
+      DisplayDeviceConfig (Page);
+      break;
+
     case EFI_MENU_ITEM_CASE_MANAGEMENT:
       DisplayTestNodeMenu (&gFT->TestNodeList, Page);
       break;
 
     case EFI_MENU_ITEM_REPORT_GENERATOR:
-      DisplayReportGenerator(Page);
+      DisplayReportGenerator (Page);
       break;
 
     case EFI_MENU_ITEM_VIEW_LOG:
-      DisplayLog(Page);
+      DisplayLog (Page);
       break;
 
     case EFI_MENU_ITEM_UTILITY:
@@ -468,6 +490,48 @@ Returns:
   gMenuExit = TRUE;
 
   return EFI_SUCCESS;
+}
+
+VOID
+DisplayDeviceConfig (
+  IN EFI_MENU_PAGE                *Page
+  )
+{
+  EFI_STATUS    Status;
+
+  //
+  // Check parameters
+  //
+  if (Page == NULL) {
+    return;
+  }
+
+  //
+  // Clears the screen
+  //
+  ST->ConOut->SetAttribute (
+                ST->ConOut,
+                EFI_LIGHTGRAY | EFI_BACKGROUND_BLACK
+                );
+  ST->ConOut->ClearScreen (ST->ConOut);
+
+  //
+  // Gather the device configuration data
+  //
+  Status = SctDeviceConfig ();
+  if (EFI_ERROR (Status)) {
+    EFI_SCT_DEBUG ((EFI_SCT_D_ERROR, L"Device Config - %r", Status));
+  }
+
+  //
+  // Refresh the menu page
+  //
+  MenuPageRefresh (Page);
+
+  //
+  // Done
+  //
+  return;
 }
 
 VOID

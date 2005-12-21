@@ -15,7 +15,7 @@
 #
 # Abstract:
 #
-#   This is a build description file used to build the test modules for IA32
+#   This is a build description file used to build the test modules for IPF
 #   platforms.
 #
 # Notes:
@@ -1165,6 +1165,34 @@ Platform\IntelTest\TestCase\EFI\Protocol\UgaDraw\BlackBoxTest\UgaDrawBBTest.inf
 Platform\IntelTest\TestCase\EFI\Protocol\UnicodeCollation\BlackBoxTest\UnicodeCollationBBTest.inf
 Platform\IntelTest\TestCase\EFI\Protocol\UsbHc\BlackBoxTest\UsbHcTest.inf
 Platform\IntelTest\TestCase\EFI\Protocol\UsbIo\BlackBoxTest\UsbIoTest.inf
+
+#
+# IHV test cases
+#
+
+Platform\IntelTest\TestCase\IHV\Protocol\BlockIo\BlackBoxTest\IhvBlockIoBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\BusSpecificDriverOverride\BlackBoxTest\IhvBusSpecificDriverOverrideBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\ComponentName\BlackBoxTest\IhvComponentNameBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\DeviceIo\BlackBoxTest\IhvDeviceIoBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\DevicePath\BlackBoxTest\IhvDevicePathBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\DiskIo\BlackBoxTest\IhvDiskIoBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\DriverBinding\BlackBoxTest\IhvDriverBindingBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\DriverConfiguration\BlackBoxTest\IhvDriverConfigurationBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\DriverDiagnostics\BlackBoxTest\IhvDriverDiagnosticsBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\Ebc\BlackBoxTest\IhvEbcBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\PlatformDriverOverride\BlackBoxTest\IhvPlatformDriverOverrideBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\PxeBaseCode\BlackBoxTest\IhvPxeBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\ScsiPassThru\BlackBoxTest\IhvScsiPassThruBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\SerialIo\BlackBoxTest\IhvSerialIoBbTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\SimpleFileSystem\BlackBoxTest\IhvSimpleFileSystemBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\SimpleNetwork\BlackBoxTest\IhvSimpleNetworkBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\SimplePointer\BlackBoxTest\IhvSimplePointerBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\SimpleTextIn\BlackBoxTest\IhvSimpleTextInBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\SimpleTextOut\BlackBoxTest\IhvSimpleTextOutBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\UgaDraw\BlackBoxTest\IhvUgaDrawBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\UnicodeCollation\BlackBoxTest\IhvUnicodeCollationBBTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\UsbHc\BlackBoxTest\IhvUsbHcTest.inf
+Platform\IntelTest\TestCase\IHV\Protocol\UsbIo\BlackBoxTest\IhvUsbIoTest.inf
 
 #
 # Dependency files for EFI Compliant Test

@@ -33,6 +33,7 @@ COMPONENT_TYPE       = APPLICATION
   Data\TestCase.c
   Data\TestCaseEx.c
   Data\TestNode.c
+  DeviceConfig\DeviceConfig.c
   Execute\Execute.c
   Execute\ExecuteSupport.c
   Execute\ExecuteSupport.h

@@ -51,6 +51,7 @@ Abstract:
 #define EFI_SCT_FILE_GUID_DATABASE          L"Data\\GuidFile.txt"
 #define EFI_SCT_FILE_RECOVERY               L"Data\\Recovery.dat"
 #define EFI_SCT_FILE_TEST_CASE              L"Data\\TestCase.ini"
+#define EFI_SCT_FILE_DEVICE_CONFIG          L"Data\\DeviceConfig.ini"
 
 #define EFI_SCT_FILE_SUMMARY_LOG            L"Overall\\Summary.log"
 #define EFI_SCT_FILE_SUMMARY_EKL            L"Overall\\Summary.ekl"
