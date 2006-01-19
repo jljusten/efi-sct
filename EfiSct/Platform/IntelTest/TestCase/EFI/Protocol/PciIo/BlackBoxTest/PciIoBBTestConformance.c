@@ -3696,6 +3696,13 @@ PciRead_Conf (
                  Status
                  );
 
+  /*
+
+  Offset + Count * Width > 255 could be supported in PCI Express supported
+  implementation. So even this bounary check is described in the EFI spec, but
+  the bounary value could be implementation specific. So here we just comment
+  these checkpoints.
+
   //
   //call Pci.Read with Offset + Count * Width > 255.
   //
@@ -3764,7 +3771,7 @@ PciRead_Conf (
                  (UINT32)Count,
                  WidthCode[PciIoWidth]
                  );
-
+  */
 
   //
   // Get the profile Library Interface
@@ -4138,6 +4145,13 @@ PciWrite_Conf (
                  Status
                  );
 
+  /*
+
+  Offset + Count * Width > 255 could be supported in PCI Express supported
+  implementation. So even this bounary check is described in the EFI spec, but
+  the bounary value could be implementation specific. So here we just comment
+  these checkpoints.
+
   //
   //call Pci.Write with Offset + Count * Width > 255.
   //
@@ -4206,7 +4220,7 @@ PciWrite_Conf (
                  (UINT32)Count,
                  WidthCode[PciIoWidth]
                  );
-
+  */
 
   //
   // Get the profile Library Interface
