@@ -17487,7 +17487,8 @@ BBTestDisconnectControllerInterfaceTestCheckPoint6 (
     }
 
     //
-    // busguid installed by bus driver still could be located
+    // both two children have been uninstalled, so busguid installed by bus
+    // driver could not be located again
     //
     Status = gtBS->HandleProtocol (
                      Handle,
