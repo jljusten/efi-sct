@@ -1182,6 +1182,8 @@ BBTestOutputStringFunctionAutoTest (
                    Status,
                    ModeOrg.Mode
                    );
+
+    return Status;
   }
 
   //
@@ -1309,6 +1311,8 @@ BBTestOutputStringFunctionAutoTest (
                    Status,
                    ModeOrg.Mode
                    );
+
+    return Status;
   }
 
   //
@@ -1951,6 +1955,8 @@ BBTestOutputStringFunctionManualTest (
                    Status,
                    ModeOrg.Mode
                    );
+
+    return Status;
   }
 
   //
@@ -2881,8 +2887,7 @@ BBTestQueryModeFunctionAutoTest (
                    ModeExpected.Attribute,
                    ModeExpected.CursorVisible
                    );
-    if (EFI_UNSUPPORTED==Status && Index==1)
-    {
+    if (EFI_UNSUPPORTED == Status) {
       AssertionType = EFI_TEST_ASSERTION_PASSED;
       StandardLib->RecordAssertion (
                      StandardLib,
@@ -3451,8 +3456,7 @@ BBTestSetModeFunctionAutoTest (
     // Get mode's dimensions
     //
     Status = SimpleOut->QueryMode (SimpleOut, Index, &Column, &Row);
-    if (EFI_UNSUPPORTED==Status && Index==1)
-    {
+    if (EFI_UNSUPPORTED == Status) {
       AssertionType = EFI_TEST_ASSERTION_PASSED;
       StandardLib->RecordAssertion (
                      StandardLib,
@@ -4881,6 +4885,8 @@ BBTestSetCursorPositionFunctionManualTest (
                    Status,
                    SimpleOut->Mode->Mode
                    );
+
+    return Status;
   }
 
   //
