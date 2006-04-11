@@ -452,13 +452,6 @@ CatPrint (
   );
 
 UINTN
-PrintToken (
-  IN UINT16                         Token,
-  IN EFI_HII_HANDLE                 Handle,
-  ...
-  );
-
-UINTN
 PrintAt (
   IN UINTN                          Column,
   IN UINTN                          Row,
