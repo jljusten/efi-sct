@@ -485,7 +485,7 @@ BBTestCreateEvent_Func_Sub2 (
     //
     OldTpl = gtBS->RaiseTPL (EFI_TPL_HIGH_LEVEL);
     for (SubIndex = 0; NotifyTpls[SubIndex] != 0; SubIndex++) {
-      Status = gtBS->SignalEvent (&Events[SubIndex]);
+      Status = gtBS->SignalEvent (Events[SubIndex]);
       if (EFI_ERROR (Status)) {
         break;
       }
