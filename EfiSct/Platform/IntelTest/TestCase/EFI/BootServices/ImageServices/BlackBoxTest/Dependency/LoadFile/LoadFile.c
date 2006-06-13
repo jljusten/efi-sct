@@ -214,7 +214,8 @@ LoadFileDriverBindingStart (
                    &gEfiLoadFileProtocolGuid,
                    &mLoadFileProtocol,
                    &gEfiDevicePathProtocolGuid,
-                   mLoadFileDriverDevicePath
+                   mLoadFileDriverDevicePath,
+                   NULL
                    );
   return Status;
 }
@@ -246,7 +247,8 @@ LoadFileDriverBindingStop (
           &gEfiLoadFileProtocolGuid,
           &mLoadFileProtocol,
           &gEfiDevicePathProtocolGuid,
-          mLoadFileDriverDevicePath
+          mLoadFileDriverDevicePath,
+          NULL
           );
 
   gtBS->FreePool (mLoadFileDriverDevicePath);
