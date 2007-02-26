@@ -22,8 +22,10 @@ Abstract:
 
 #include "DevicePathBBTestMain.h"
 
+/*
 #define DEVICE_PATH_MESSAGING_UART_FLOW_CONTROL    \
 {0x37499A9D, 0x542F, 0x4C89, 0xA0, 0x26, 0x35, 0xDA, 0x14, 0x20, 0x94, 0xE4}
+*/
 
 EFI_GUID gEfiDevicePathMessagingUartFlowControlGuid = DEVICE_PATH_MESSAGING_UART_FLOW_CONTROL;
 

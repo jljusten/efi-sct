@@ -52,8 +52,9 @@ ihv_sct : build_tools makefiles builds ihv_framework
 # Make all the build tools by calling the makefile
 #
 build_tools :
-  $(MAKE) -f $(EDK_TOOLS_SOURCE)\makefile PROCESSOR=$(PROCESSOR) TOOLCHAIN=TOOLCHAIN_MSVC EDK_SOURCE=$(EDK_SOURCE)
-  $(MAKE) -f $(TEST_TOOLS_SOURCE)\makefile PROCESSOR=$(PROCESSOR) TOOLCHAIN=TOOLCHAIN_MSVC EDK_SOURCE=$(EDK_SOURCE)
+  $(MAKE) -f $(EDK_TOOLS_SOURCE)\makefile PROCESSOR=$(PROCESSOR) TOOLCHAIN=TOOLCHAIN_MSVC EDK_SOURCE=$(EDK_SOURCE) BUILD_DIR=$(BUILD_DIR)
+  $(MAKE) -f $(TEST_TOOLS_SOURCE)\makefile PROCESSOR=$(PROCESSOR) TOOLCHAIN=TOOLCHAIN_MSVC EDK_SOURCE=$(EDK_SOURCE) BUILD_DIR=$(BUILD_DIR)
+  $(GUIDCHK) -b $(EDK_TOOLS_OUTPUT)\GuidDatabase.txt
 
 #
 # Run ProcessDsc on our main description files to generate the

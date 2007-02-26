@@ -25,7 +25,9 @@ Abstract:
 #include "PciIoProtocol.h"
 #include EFI_PROTOCOL_DEFINITION(PciRootBridgeIo)
 
+/*
 #define PCI_MAX_CONFIG_OFFSET  0x100
+*/
 
 #define ENABLE_BIT      0x01
 #define ZERO            0x00

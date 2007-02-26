@@ -1056,7 +1056,7 @@ Edk\Foundation\Guid\EdkGuidLib.inf
 Edk\Foundation\Framework\Guid\EdkFrameworkGuidLib.inf
 Edk\Foundation\Efi\Guid\EfiGuidLib.inf
 Edk\Foundation\Library\EfiCommonLib\EfiCommonLib.inf
-Edk\Foundation\Cpu\Pentium\CpuIA32Lib\CpuIA32Lib.inf
+Edk\Foundation\Cpu\Itanium\CpuIA64Lib\CpuIA64Lib.inf
 
 Edk\Foundation\Ppi\EdkPpiLib.inf
 Edk\Foundation\Framework\Ppi\EdkFrameworkPpiLib.inf
